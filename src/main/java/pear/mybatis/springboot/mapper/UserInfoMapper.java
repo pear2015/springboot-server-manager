@@ -36,13 +36,17 @@ import java.util.List;
 public interface UserInfoMapper  {
     @Select("SELECT * FROM user_info  WHERE user_id = #{id}")
     @Results({
-            @Result(property = "userId", column = "user_id")
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "picture", column = "picture"),
+            @Result(property = "userType", column = "user_type")
     })
     UserInfo getOne(String id);
 
     @Select("SELECT * FROM user_info  WHERE user_id = #{id}")
     @Results({
-            @Result(property = "userId", column = "user_id")
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "picture", column = "picture"),
+            @Result(property = "userType", column = "user_type")
     })
     List<UserInfo> getAllUserInfo();
 
@@ -51,7 +55,8 @@ public interface UserInfoMapper  {
 
     @Select("SELECT * FROM user_info  WHERE username = #{userName}  limit 1")
     @Results({
-            @Result(property = "userId", column = "user_id")
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "userType", column = "user_type")
     })
     UserInfo findByUserName(String userName);
 
@@ -65,8 +70,30 @@ public interface UserInfoMapper  {
             " update  user_info" +
             " <set>"+
             " <if test=\"user.userName != null\"> username=#{user.userName},</if> " +
-            " <if test=\"user.email != null\">  email=#{user.email}</if> " +
+            " <if test=\"user.email != null\">  email=#{user.email},</if> " +
+            " <if test=\"user.picture != null\">  picture=#{user.picture}</if> " +
             " </set> where user_id =#{user.userId}"+
             " </script> ")
     void updateUser(@Param("user") UserInfo user);
+
+    @Select("SELECT * FROM user_info  WHERE user_type = #{userType}")
+    @Results({
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "userType", column = "user_type")
+    })
+    List<UserInfo> getAllUserInfoByUserType(int userType);
+
+
+    @Select("<script> select * from user_info " +
+            "where " +
+            "user_type in" +
+            "<foreach collection='ids' item='item' open='(' separator=',' close=')'>" +
+            "#{item} "+
+            "</foreach>" +
+            "</script>")
+    @Results({
+            @Result(property = "userId", column = "user_id"),
+            @Result(property = "userType", column = "user_type")
+    })
+    List<UserInfo> getAllUserInfoByUserType1(@Param("ids")List<Integer> ids);
 }
